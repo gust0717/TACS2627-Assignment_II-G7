@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<!DOCTYPE suppressions PUBLIC
+    "-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN"
+    "https://checkstyle.org/dtds/suppressions_1_2.dtd">
+<!-- Every suppression gives its reason and is approved by the students (TEST.md 3.1). -->
+<suppressions>
+  <!-- AGENTS.md: locks and synchronized allowed only in application.actor -->
+  <suppress id="SynchronizedBlock" files="[\\/]application[\\/]actor[\\/]"/>
+</suppressions>

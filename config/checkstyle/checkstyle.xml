@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+<!DOCTYPE module PUBLIC
+    "-//Checkstyle//DTD Checkstyle Configuration 1.3//EN"
+    "https://checkstyle.org/dtds/configuration_1_3.dtd">
+<!--
+  Checkstyle (TEST.md 3.1): naming, file and class structure, synchronized blocks, empty catch
+  blocks and catch (Throwable).
+  Not here, on purpose:
+  - whitespace, indentation, line length, wrapping: layout belongs to Spotless.
+  - MissingSwitchDefault: AGENTS.md forbids a default branch on a sealed message type.
+-->
+<module name="Checker">
+  <property name="charset" value="UTF-8"/>
+  <property name="severity" value="warning"/>
+  <property name="fileExtensions" value="java"/>
+
+  <module name="SuppressionFilter">
+    <property name="file" value="${checkstyle.suppressions.file}"/>
+    <property name="optional" value="false"/>
+  </module>
+
+  <module name="TreeWalker">
+    <!-- Naming -->
+    <module name="PackageName">
+      <property name="format" value="^[a-z]+(\.[a-z][a-z0-9]*)*$"/>
+    </module>
+    <module name="TypeName"/>
+    <module name="MethodName"/>
+    <module name="MemberName"/>
+    <module name="ParameterName"/>
+    <module name="LambdaParameterName"/>
+    <module name="CatchParameterName"/>
+    <module name="LocalVariableName"/>
+    <module name="LocalFinalVariableName"/>
+    <module name="PatternVariableName"/>
+    <module name="StaticVariableName"/>
+    <module name="ConstantName"/>
+    <module name="RecordComponentName"/>
+    <module name="ClassTypeParameterName"/>
+    <module name="MethodTypeParameterName"/>
+    <module name="InterfaceTypeParameterName"/>
+    <module name="RecordTypeParameterName"/>
+
+    <!-- File and class structure -->
+    <module name="OuterTypeFilename"/>
+    <module name="OneTopLevelClass"/>
+    <module name="HideUtilityClassConstructor"/>
+    <module name="FinalClass"/>
+    <module name="MultipleVariableDeclarations"/>
+    <module name="AvoidStarImport"/>
+
+    <!-- AGENTS.md Forbidden: catching any exception and ignoring it. No comment and no variable
+         name makes an empty catch block acceptable: (?!) matches nothing (defaults: any comment
+         is accepted, exceptionVariableName ^$). -->
+    <module name="EmptyCatchBlock">
+      <property name="commentFormat" value="(?!)"/>
+      <property name="exceptionVariableName" value="(?!)"/>
+    </module>
+
+    <!-- AGENTS.md Forbidden: catching Throwable. Only Throwable: catch (Exception) is checked by
+         ArchUnit at bytecode level; ArchUnit cannot check Throwable, since javac compiles
+         try-with-resources to a synthetic catch (Throwable). -->
+    <module name="IllegalCatch">
+      <property name="illegalClassNames" value="Throwable, java.lang.Throwable"/>
+    </module>
+
+    <!-- AGENTS.md Forbidden: synchronized outside application.actor. Blocks only: the query
+         skips the synchronized modifier (parent MODIFIERS), since synchronized methods are
+         checked by ArchUnit (TEST.md 3.1). See suppressions.xml for the package. -->
+    <module name="MatchXpath">
+      <property name="id" value="SynchronizedBlock"/>
+      <property name="query" value="//LITERAL_SYNCHRONIZED[not(parent::MODIFIERS)]"/>
+      <message key="matchxpath.match"
+          value="synchronized block outside application.actor (AGENTS.md Forbidden)."/>
+    </module>
+  </module>
+</module>
