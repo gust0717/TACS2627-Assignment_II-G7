@@ -23,7 +23,7 @@ The tests are adequate when:
 
 ### 3.1 Test architecture
 
-Three kinds of tests. One command, `mvn verify`, runs them, the linter and the coverage gate. No mocks, mutation or performance tests.
+Three kinds of tests. One command, `mvn verify`, runs them, the static checks and the coverage gate. No mocks, mutation or performance tests.
 
 | Kind | Target | What it verifies | Tool | Serves |
 |---|---|---|---|---|
@@ -43,7 +43,25 @@ One suite runs every feature file, one after another, never in parallel, so that
 
 #### Architecture tests
 
-One rule per row of SPEC.md Table 5, on the project's own packages (the JDK is limited only by the rules below), with `application` matched without its subpackages. Also: no clock or sleep in `domain`; no threads, locks, `synchronized` methods or `wait`/`notify` outside `application.actor`; no executors, virtual threads or `CompletableFuture`; no unbounded JDK queue created (`LinkedBlockingQueue` without a capacity, `ConcurrentLinkedQueue`, `LinkedTransferQueue`, `PriorityBlockingQueue`); no catch of `Exception` or `Throwable`. `synchronized` blocks, `default` on sealed types and ignored exceptions are left to the linter and review.
+One rule per row of SPEC.md Table 5, on the project's own packages (the JDK is limited only by the rules below), with `application` matched without its subpackages. Also: no clock or sleep in `domain`; no threads, locks, `synchronized` methods or `wait`/`notify` outside `application.actor`; no executors, virtual threads or `CompletableFuture`; no unbounded JDK queue created (`LinkedBlockingQueue` without a capacity, `ConcurrentLinkedQueue`, `LinkedTransferQueue`, `PriorityBlockingQueue`); no catch of `Exception` or `Throwable`. `synchronized` blocks and ignored exceptions are left to the static checks below; a `default` branch on a sealed type, which none of the chosen tools checks out of the box, is left to review.
+
+#### Static checks
+
+Not a kind of test: they read the code, they do not run it. `mvn verify` runs them, and any finding fails the build.
+
+| Concern | Tool |
+|---|---|
+| Compiler warnings | javac, `-Xlint:all -Werror` (as in the airlock example) |
+| Formatting | Spotless, with google-java-format |
+| Linting | Checkstyle, PMD |
+| Bug patterns | SpotBugs |
+
+Guidelines:
+
+- Each tool runs its standard rules. A rule is turned off only where it contradicts SPEC.md or AGENTS.md, in the tool's configuration (never in the code), with its reason, and approved by the students.
+- Tools may overlap: a defect reported twice is fixed once. A linter never checks layout, which belongs to the formatter.
+- The Forbidden constructs of AGENTS.md that ArchUnit cannot see are checked here where a tool can.
+- When a check fails, fix the code; never weaken a check to make the build pass.
 
 ### 3.2 The fake environment
 
