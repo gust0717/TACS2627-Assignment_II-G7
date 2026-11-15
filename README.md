@@ -2,8 +2,8 @@
 
 Course: Advanced Software Construction Techniques (TACS), FEUP, 2026/27.
 
-Controller: **TODO** (from the project pool)
-Language: **TODO**
+Controller: **single-lane tunnel with traffic lights at both ends** (pool problem 7)
+Language: **Java 21**
 
 An embedded controller built from behavioural models (state machines, sequence diagrams, temporal properties), turned into concurrent code by AI agents and checked by timed scenario tests. The architecture follows the teachers' [airlock worked example](https://github.com/joaopascoalfariafeup/airlock).
 
