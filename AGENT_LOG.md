@@ -40,3 +40,13 @@ One entry per significant task. Each student records at least two agent changes 
 - **Accepted:** packages `launcher`, `adapters`, `application` (with `application.actor` and `application.port`) and `domain` under `pt.feup.tacs.tunnel`; ports as one-way bounded channels; one actor runtime in `application.actor`; decisions D1 to D8; AGENTS.md renamed "kernel" to `application.actor` and "fake hardware" to simulated device adapters. ArchUnit (test library, D5) is pending the teachers' approval.
 - **Wrong, and how it was noticed:** an independent review (Claude Opus 5.5) against the assignment, the airlock SPEC.md and AGENTS.md raised findings that were applied and then refined in review; AGENTS.md first listed ArchUnit as allowed before it was approved, corrected to pending.
 - **Skill used (if any):** none.
+
+### 4. Test architecture (TEST.md 3.1)
+- **Date / author:** 2026-11-15, Bruno Alves
+- **Tool and model:** Claude Code (desktop), claude-opus-5-5
+- **Goal:** fill TEST.md section 3.1: the kinds of tests, the coverage gate and the architecture tests.
+- **Context given:** SPEC.md section 3.4 (pull request #3), TEST.md, AGENTS.md, tracecheck/README.md, the assignment PDF.
+- **Prompt (summary):** a brainstorming session on the kinds of tests to support, JaCoCo coverage and ArchUnit dependency tests.
+- **Accepted:** three kinds of tests (unit, system, architecture); system scenarios as Gherkin feature files for the inputs, with tracecheck checking the expected logs; ArchUnit rules from SPEC.md Table 5 and the Forbidden list; a JaCoCo gate; `mvn verify` as the one command. Cucumber (cucumber-java, cucumber-junit-platform-engine), ArchUnit and JaCoCo (build plugin) are pending the teachers' approval.
+- **Wrong, and how it was noticed:** the agent proposed seven kinds of tests, including component tests of one active object; reduced to three by us. It recommended own scenario files over Cucumber; we chose Cucumber for the inputs, keeping tracecheck for the outputs. It proposed a coverage gate on `domain` only (100% branch); we set 90% line and branch over the whole project. An independent review (Claude Opus 5.5) found that AGENTS.md read as if the libraries were approved, that ArchUnit can check caught exceptions but not unbounded queues in general, and that "tests only through `launcher`" contradicted unit tests; corrected.
+- **Skill used (if any):** superpowers:brainstorming, superpowers:writing-plans.
