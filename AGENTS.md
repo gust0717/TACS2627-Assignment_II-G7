@@ -19,8 +19,9 @@ An actor model, hand-built on the JDK, inside a hexagonal boundary: the actors r
 
 ## Conventions
 
-- One small task at a time. Run `mvn verify` (every test, the linter and the coverage gate) before reporting a task as finished; report failures as they are.
+- One small task at a time. Run `mvn spotless:apply`, then `mvn verify` (every test, the static checks and the coverage gate) before reporting a task as finished; report failures as they are. Do not format by hand.
 - Coverage stays at or above the gate (`TEST.md`, section 3.1): when it falls, add a test; never lower the thresholds or exclude code.
+- A static-check finding (`TEST.md`, section 3.1) is fixed in the code. Never weaken or suppress a check to make the build pass; propose it with its reason and wait for approval.
 - Every timing value is a named constant that matches SPEC.md or TEST.md.
 - Test first: start from a failing scenario; implement just enough; refactor with all scenarios passing. Never edit an expected log to make a test pass.
 - Expected logs come from SPEC.md and TEST.md, never from the program's output: written by the students, or drafted by a session that has not seen the code and reviewed by them. Propose changes; do not edit them unless asked.
@@ -34,7 +35,7 @@ An actor model, hand-built on the JDK, inside a hexagonal boundary: the actors r
 - shared state between components other than the clock, the log and the stop flag
 - unbounded queues
 - sleeping or reading the clock in a decision function
-- any library beyond the standard one and JUnit, without approval (pending: ArchUnit, AGENT_LOG.md entry 3; Cucumber and the JaCoCo plugin, entry 4)
+- any library beyond the standard one and JUnit, without approval (pending: ArchUnit, AGENT_LOG.md entry 3; Cucumber and the JaCoCo plugin, entry 4; the Spotless, Checkstyle, PMD and SpotBugs plugins, entry 5)
 - thread pools, executors, virtual threads or async tasks (one platform thread per actor)
 - a `default` branch on a sealed message type
 - catching `Exception` or `Throwable`, or catching any exception and ignoring it (`InterruptedException` only while shutting down, restoring the interrupt flag)
