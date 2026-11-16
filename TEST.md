@@ -1,12 +1,12 @@
-# TODO: <controller name>: test plan
+# Single-lane tunnel: test plan
 
-> Template following the airlock worked example. Ids refer to SPEC.md.
+> Follows the airlock worked example. Ids refer to SPEC.md.
 
 ## 1. Criteria
 
 The tests are adequate when:
 
-1. **Coverage.** Every journey, alternative/exception flow and state machine transition is exercised. TODO
+1. **Coverage.** Every journey, alternative/exception flow and state machine transition is exercised (model coverage, counted with the transition ids in section 2). Code coverage (section 3.1) adds to it, never replaces it. TODO
 2. **Requirements verification.** Every property is challenged by at least one scenario; logs match the expected logs, time bounds included; expected logs are written from the specification, never from the program's output. TODO
 3. **Design conformance.** Each decision function is reviewed against its state machine, sneak paths included. TODO
 4. **Concurrency.** Scenarios with races run several times and every run matches an allowed outcome. TODO
@@ -23,15 +23,35 @@ The tests are adequate when:
 
 ### 3.1 Test architecture
 
-TODO: test driver, run context, scenarios folder, tracecheck; the one command that runs everything.
+Three kinds of tests. One command, `mvn verify`, runs them, the linter and the coverage gate. No mocks, mutation or performance tests.
+
+| Kind | Target | What it verifies | Tool | Serves |
+|---|---|---|---|---|
+| Unit | every class on its own | decision functions: every transition (T ids) and every ignored event, as a table (state, message → state, actions); actor runtime: bounded inbox, timers and their cancelling, stop, logging | JUnit 5 | criteria 1, 3 |
+| System | the whole system, started by `launcher` on real threads with shortened times (section 3.4) | each scenario of section 2: actual log against expected log; properties over the whole log; races run several times | Cucumber, tracecheck | criteria 1, 2, 4 |
+| Architecture | the compiled main classes | the dependencies of SPEC.md Table 5; the Forbidden constructs of AGENTS.md visible in the classes | ArchUnit | D3, D4, D5 |
+
+#### Unit tests
+
+Coverage gate: JaCoCo, with one report for unit and system tests; the build fails below 90% line or 90% branch coverage over the whole project. When coverage falls, add a test; never lower the thresholds or exclude code. The JaCoCo version must ignore the branches the compiler adds to Java 21 switches on sealed types.
+
+#### System tests
+
+One feature file per scenario in `scenarios/`, next to its expected log, tagged with its ids (`@S1 @P1`, in place of `// Verifies:`). Gherkin gives the inputs: `Given` starts the system, `When` and `And` are user inputs and the passing of time, in real-system time. `Then` steps check properties over the whole log, since a `...` can hide a forbidden message; the last `Then` has tracecheck compare the logs, so no step checks order or times itself. A race is a `Scenario Outline` over run numbers; every run must match an allowed outcome.
+
+One suite runs every feature file, one after another, never in parallel, so that they do not delay each other's threads. System tests use the system only through `launcher` and the messages; no main class uses a test class. tracecheck needs `python3` (3.8 or later).
+
+#### Architecture tests
+
+One rule per row of SPEC.md Table 5, on the project's own packages (the JDK is limited only by the rules below), with `application` matched without its subpackages. Also: no clock or sleep in `domain`; no threads, locks, `synchronized` methods or `wait`/`notify` outside `application.actor`; no executors, virtual threads or `CompletableFuture`; no unbounded JDK queue created (`LinkedBlockingQueue` without a capacity, `ConcurrentLinkedQueue`, `LinkedTransferQueue`, `PriorityBlockingQueue`); no catch of `Exception` or `Throwable`. `synchronized` blocks, `default` on sealed types and ignored exceptions are left to the linter and review.
 
 ### 3.2 The fake environment
 
 TODO
 
-### 3.3 Scenario files and expected logs
+### 3.3 Feature files and expected logs
 
-TODO: scenario file syntax and expected log syntax (see [tracecheck/README.md](tracecheck/README.md)).
+TODO: the Gherkin step phrases of the feature files, and the expected log syntax (see [tracecheck/README.md](tracecheck/README.md)).
 
 ### 3.4 Testing on real threads
 
