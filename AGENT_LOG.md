@@ -50,3 +50,13 @@ One entry per significant task. Each student records at least two agent changes 
 - **Accepted:** three kinds of tests (unit, system, architecture); system scenarios as Gherkin feature files for the inputs, with tracecheck checking the expected logs; ArchUnit rules from SPEC.md Table 5 and the Forbidden list; a JaCoCo gate; `mvn verify` as the one command. Cucumber (cucumber-java, cucumber-junit-platform-engine), ArchUnit and JaCoCo (build plugin) are pending the teachers' approval.
 - **Wrong, and how it was noticed:** the agent proposed seven kinds of tests, including component tests of one active object; reduced to three by us. It recommended own scenario files over Cucumber; we chose Cucumber for the inputs, keeping tracecheck for the outputs. It proposed a coverage gate on `domain` only (100% branch); we set 90% line and branch over the whole project. An independent review (Claude Opus 5.5) found that AGENTS.md read as if the libraries were approved, that ArchUnit can check caught exceptions but not unbounded queues in general, and that "tests only through `launcher`" contradicted unit tests; corrected.
 - **Skill used (if any):** superpowers:brainstorming, superpowers:writing-plans.
+
+### 5. Static checks (TEST.md 3.1)
+- **Date / author:** 2026-11-15, Bruno Alves
+- **Tool and model:** Claude Code (desktop), claude-opus-5-5
+- **Goal:** choose the formatter, linters and bug-pattern checker, and the guidelines for using them; closes the linter choice left open in entry 4.
+- **Context given:** TEST.md and AGENTS.md as of pull request #4, SPEC.md section 3.4, the chosen tools (Spotless, PMD, Checkstyle, SpotBugs).
+- **Prompt (summary):** how to adapt AGENTS.md, SPEC.md and TEST.md to Spotless for formatting, PMD and Checkstyle for linting and SpotBugs for bug patterns.
+- **Accepted:** Spotless with google-java-format for formatting, Checkstyle and PMD for linting, SpotBugs for bug patterns; compiler warnings as errors, as in the airlock example; general guidelines only (a rule is turned off only where it contradicts the design, with its reason in the tool's configuration; overlap between tools is accepted; never weaken a check to pass); SPEC.md unchanged. The four plugins are pending the teachers' approval.
+- **Wrong, and how it was noticed:** the agent first wrote tool-specific settings into TEST.md and AGENTS.md (rule names per Forbidden construct, SpotBugs effort and threshold, suppression syntax, minimum versions); we kept general guidelines only and left the settings to the tools' configuration in the scaffold PR.
+- **Skill used (if any):** none.
