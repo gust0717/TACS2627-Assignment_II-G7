@@ -92,25 +92,25 @@ final class PackageDependencyTest {
 
   // Verifies: D1, D5
   @ArchTest
-  static final ArchRule PORT_USES_ONLY_DOMAIN =
+  static final ArchRule PORT_USES_ONLY_JDK =
       classes()
           .that()
           .resideInAPackage(PORT)
           .should()
           .onlyDependOnClassesThat()
-          .resideInAnyPackage(PORT, DOMAIN, JDK)
-          .because("SPEC.md Table 5: application.port may use domain");
+          .resideInAnyPackage(PORT, JDK)
+          .because("SPEC.md Table 5: application.port may use nothing");
 
-  // Verifies: D3, D5
+  // Verifies: D3, D5, D9
   @ArchTest
-  static final ArchRule ACTOR_USES_ONLY_PORT =
+  static final ArchRule ACTOR_USES_ONLY_JDK =
       classes()
           .that()
           .resideInAPackage(ACTOR)
           .should()
           .onlyDependOnClassesThat()
-          .resideInAnyPackage(ACTOR, PORT, JDK)
-          .because("SPEC.md Table 5 and D3: application.actor may use application.port only");
+          .resideInAnyPackage(ACTOR, JDK)
+          .because("SPEC.md Table 5 and D9: application.actor is a library on the JDK only");
 
   // Verifies: D1, D5
   @ArchTest
