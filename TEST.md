@@ -23,7 +23,7 @@ The tests are adequate when:
 
 ### 3.1 Test architecture
 
-Three kinds of tests. One command, `mvn verify`, runs them, the static checks and the coverage gate. No mocks, mutation or performance tests.
+Three kinds of tests. One command, `./mvnw verify`, runs them, the static checks and the coverage gate. No mocks, mutation or performance tests.
 
 | Kind | Target | What it verifies | Tool | Serves |
 |---|---|---|---|---|
@@ -33,7 +33,7 @@ Three kinds of tests. One command, `mvn verify`, runs them, the static checks an
 
 #### Unit tests
 
-Coverage gate: JaCoCo, with one report for unit and system tests; the build fails below 90% line or 90% branch coverage over the whole project. When coverage falls, add a test; never lower the thresholds or exclude code. The JaCoCo version must ignore the branches the compiler adds to Java 21 switches on sealed types.
+Coverage gate: JaCoCo, with one report for unit and system tests; the build fails below 90% line or 90% branch coverage over the whole project. When coverage falls, add a test; never lower the thresholds or exclude code.
 
 #### System tests
 
@@ -43,11 +43,11 @@ One suite runs every feature file, one after another, never in parallel, so that
 
 #### Architecture tests
 
-One rule per row of SPEC.md Table 5, on the project's own packages (the JDK is limited only by the rules below), with `application` matched without its subpackages. Also: no clock or sleep in `domain`; no threads, locks, `synchronized` methods or `wait`/`notify` outside `application.actor`; no executors, virtual threads or `CompletableFuture`; no unbounded JDK queue created (`LinkedBlockingQueue` without a capacity, `ConcurrentLinkedQueue`, `LinkedTransferQueue`, `PriorityBlockingQueue`); no catch of `Exception` or `Throwable`. `synchronized` blocks and ignored exceptions are left to the static checks below; a `default` branch on a sealed type, which none of the chosen tools checks out of the box, is left to review.
+One rule per row of SPEC.md Table 5, on the project's own packages (the JDK is limited only by the rules below), with `application` matched without its subpackages. Also: `domain` uses only the JDK's language, collection and time types: no threads, queues, clock, logging or I/O (SPEC.md Table 5); no threads, locks, `synchronized` methods or `wait`/`notify` outside `application.actor`; no executors, virtual threads or `CompletableFuture`; no unbounded queue is created: an actor's inbox is its only queue, and timers use it; no catch of `Exception`. `synchronized` blocks, ignored exceptions and catches of `Throwable` are left to the static checks below; a `default` branch on a sealed type, which none of the chosen tools checks out of the box, is left to review.
 
 #### Static checks
 
-Not a kind of test: they read the code, they do not run it. `mvn verify` runs them, and any finding fails the build.
+Not a kind of test: they read the code, they do not run it. `./mvnw verify` runs them, and any finding fails the build.
 
 | Concern | Tool |
 |---|---|

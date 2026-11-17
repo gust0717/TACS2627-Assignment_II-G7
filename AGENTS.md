@@ -19,7 +19,7 @@ An actor model, hand-built on the JDK, inside a hexagonal boundary: the actors r
 
 ## Conventions
 
-- One small task at a time. Run `mvn spotless:apply`, then `mvn verify` (every test, the static checks and the coverage gate) before reporting a task as finished; report failures as they are. Do not format by hand.
+- One small task at a time. Run `./mvnw spotless:apply`, then `./mvnw verify` (every test, the static checks and the coverage gate) before reporting a task as finished; report failures as they are. Do not format by hand.
 - Coverage stays at or above the gate (`TEST.md`, section 3.1): when it falls, add a test; never lower the thresholds or exclude code.
 - A static-check finding (`TEST.md`, section 3.1) is fixed in the code. Never weaken or suppress a check to make the build pass; propose it with its reason and wait for approval.
 - Every timing value is a named constant that matches SPEC.md or TEST.md.
