@@ -19,6 +19,7 @@ An embedded controller built from behavioural models (state machines, sequence d
 | `scenarios/` | Feature files (Gherkin) and expected logs |
 | [tracecheck/](tracecheck/README.md) | Log comparison tool (from the airlock example) |
 | `.github/skills/` | Agent skills |
+| `.github/workflows/` | The CI pipeline |
 | `src/` | `main/java`: controller code under `pt.feup.tacs.tunnel` (`launcher`, `adapters`, `application`, `domain`); `test/java`: unit tests per package, `architecture` (ArchUnit) and `system` (Cucumber runner for `scenarios/`) |
 | `config/` | Checkstyle and PMD settings, with the reason for each rule turned off |
 | [Referencias/](Referencias) | Assignment text and kickoff slides |
@@ -38,6 +39,16 @@ Needs JDK 21 or later and python3 3.8 or later (for tracecheck). The Maven wrapp
 - Checkstyle and PMD: lint rules from `config/`;
 - SpotBugs: bug patterns;
 - JaCoCo: at least 90% line and branch coverage over unit and system tests.
+
+## Continuous integration
+
+CI runs the same gate as `./mvnw verify`, in three stages that stop at the first failure:
+
+1. compile and static checks (Spotless, Checkstyle, PMD, SpotBugs);
+2. unit and architecture tests;
+3. system tests and the coverage gate.
+
+It runs on every pull request ready for review, into any branch, and on every push to `main`. Draft pull requests are skipped. It can also be started by hand on any branch ("Run workflow" in the Actions tab); a manual run does not publish a release. Every passing merge to `main` publishes a release with the jar and the coverage report. Merging into `main` is meant to require the `build` check to pass and the branch to be up to date with `main`. The rule is a ruleset on `main` in the repository settings, not code, set by the repository owner.
 
 ## Process
 
