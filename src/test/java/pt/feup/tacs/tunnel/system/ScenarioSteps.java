@@ -1,6 +1,7 @@
 package pt.feup.tacs.tunnel.system;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import io.cucumber.java.Before;
 import io.cucumber.java.Scenario;
@@ -8,6 +9,7 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import pt.feup.tacs.tunnel.launcher.Config;
 import pt.feup.tacs.tunnel.launcher.Launcher;
@@ -33,6 +35,9 @@ public class ScenarioSteps {
 
   @Then("the log matches the expected log")
   public void theLogMatchesTheExpectedLog() throws IOException, InterruptedException {
+    // TEST.md 3.1: a Crash line fails every scenario, since a "..." could hide it from tracecheck.
+    String actual = Files.readString(Path.of("target", "scenarios", name + ".actual.txt"));
+    assertFalse(actual.lines().anyMatch(line -> line.startsWith("Crash(")), actual);
     Process tracecheck =
         new ProcessBuilder(
                 "python3",

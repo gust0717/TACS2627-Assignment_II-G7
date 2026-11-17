@@ -27,23 +27,25 @@ Three kinds of tests. One command, `./mvnw verify`, runs them, the static checks
 
 | Kind | Target | What it verifies | Tool | Serves |
 |---|---|---|---|---|
-| Unit | every class on its own | decision functions: every transition (T ids) and every ignored event, as a table (state, message → state, actions); actor runtime: bounded inbox, timers and their cancelling, stop, logging | JUnit 5 | criteria 1, 3 |
+| Unit | every class on its own | decision functions: every transition (T ids) and every ignored event, as a table (state, message → state, actions); actor runtime: every guarantee of SPEC.md section 3.1.1 | JUnit 5 | criteria 1, 3 |
 | System | the whole system, started by `launcher` on real threads with shortened times (section 3.4) | each scenario of section 2: actual log against expected log; properties over the whole log; races run several times | Cucumber, tracecheck | criteria 1, 2, 4 |
-| Architecture | the compiled main classes | the dependencies of SPEC.md Table 5; the Forbidden constructs of AGENTS.md visible in the classes | ArchUnit | D3, D4, D5 |
+| Architecture | the compiled main classes | the dependencies of SPEC.md Table 5; the Forbidden constructs of AGENTS.md visible in the classes | ArchUnit | D3, D4, D5, D9 |
 
 #### Unit tests
+
+The actor runtime is tested as a library (SPEC.md D9), with small test actors on real threads and no tunnel type: each guarantee of SPEC.md section 3.1.1 has a test. The tests see a run through a recording `ActorObserver` of their own; its contract has a test for each part: every delivery reported, an expired timer's included, on the actor's thread, before `onMessage`; a crash reported before the run stops; an exception from the observer counted as a crash. A thread may be late by up to `SLACK` (500 ms, tracecheck's default slack), never early.
 
 Coverage gate: JaCoCo, with one report for unit and system tests; the build fails below 90% line or 90% branch coverage over the whole project. When coverage falls, add a test; never lower the thresholds or exclude code.
 
 #### System tests
 
-One feature file per scenario in `scenarios/`, next to its expected log, tagged with its ids (`@S1 @P1`, in place of `// Verifies:`). Gherkin gives the inputs: `Given` starts the system, `When` and `And` are user inputs and the passing of time, in real-system time. `Then` steps check properties over the whole log, since a `...` can hide a forbidden message; the last `Then` has tracecheck compare the logs, so no step checks order or times itself. A race is a `Scenario Outline` over run numbers; every run must match an allowed outcome.
+One feature file per scenario in `scenarios/`, next to its expected log, tagged with its ids (`@S1 @P1`, in place of `// Verifies:`). Gherkin gives the inputs: `Given` starts the system, `When` and `And` are user inputs and the passing of time, in real-system time. `Then` steps check properties over the whole log, since a `...` can hide a forbidden message; the last `Then` has tracecheck compare the logs, so no step checks order or times itself. A `Crash` line (SPEC.md section 3.1, the event log) fails every scenario, whatever its expected log. A race is a `Scenario Outline` over run numbers; every run must match an allowed outcome.
 
 One suite runs every feature file, one after another, never in parallel, so that they do not delay each other's threads. System tests use the system only through `launcher` and the messages; no main class uses a test class. tracecheck needs `python3` (3.8 or later).
 
 #### Architecture tests
 
-One rule per row of SPEC.md Table 5, on the project's own packages (the JDK is limited only by the rules below), with `application` matched without its subpackages. Also: `domain` uses only the JDK's language, collection and time types: no threads, queues, clock, logging or I/O (SPEC.md Table 5); no threads, locks, `synchronized` methods or `wait`/`notify` outside `application.actor`; no executors, virtual threads or `CompletableFuture`; no unbounded queue is created: an actor's inbox is its only queue, and timers use it; no catch of `Exception`. `synchronized` blocks, ignored exceptions and catches of `Throwable` are left to the static checks below; a `default` branch on a sealed type, which none of the chosen tools checks out of the box, is left to review.
+One rule per row of SPEC.md Table 5, on the project's own packages (the JDK is limited only by the rules below), with `application` matched without its subpackages; the runtime uses no class of the project (SPEC.md D9). Also: `domain` uses only the JDK's language, collection and time types: no threads, queues, clock, logging or I/O (SPEC.md Table 5); no threads, locks, `synchronized` methods or `wait`/`notify` outside `application.actor`; no executors, virtual threads or `CompletableFuture`; no unbounded queue is created: an actor's inbox is its only queue, and timers are its wait time (SPEC.md D11); no catch of `Exception`. `synchronized` blocks, ignored exceptions and catches of `Throwable` are left to the static checks below; a `default` branch on a sealed type, which none of the chosen tools checks out of the box, is left to review.
 
 #### Static checks
 
@@ -73,4 +75,4 @@ TODO: the Gherkin step phrases of the feature files, and the expected log syntax
 
 ### 3.4 Testing on real threads
 
-TODO: speed factor, `SLACK`, margins between events.
+TODO: speed factor (`launcher` divides the times by it and the event log multiplies its times back, SPEC.md D8; it also multiplies a thread's lateness in the log, so `SLACK` bounds the highest speed), `SLACK`, margins between events.

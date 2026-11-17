@@ -9,11 +9,11 @@ This is the controller of a single-lane tunnel with traffic lights at both ends 
 An actor model, hand-built on the JDK, inside a hexagonal boundary: the actors reach the world only through messages. The devices are adapters, simulated here, started with the system; the test driver plays the users from outside. Packages and their dependencies: `SPEC.md`, section 3.4.
 
 - One component per active object: own thread, single bounded blocking inbox; the shared resource is owned by one coordinator component.
-- The inbox, the thread loop, the timers and the run context are written once, in the actor runtime (`application.actor`), which knows nothing of tunnels.
+- The inbox, the thread loop, the timers and the stop flag are written once, in the actor runtime (`application.actor`, `SPEC.md` section 3.1.1): a library on the JDK only, which knows nothing of the project and no log format; it reports deliveries and crashes to an observer. Components extend its base actor.
 - Each component has a decision function that only decides (no I/O, threads or clock); its thread does what was decided.
-- `launcher` starts the system (queues, threads, times, device settings); components get their queues there.
-- The controller uses only the real clock; the test driver gives shorter times to run faster.
-- Every message is logged with its time, in the format of the expected logs.
+- `launcher` starts the system (times, device settings): it creates the actor system, spawns the components and gives each the ports it sends into.
+- The controller uses only the real clock; the test driver gives a speed factor to run faster: `launcher` shortens the times it gives, and the event log puts its times back in real-system time.
+- Every message is logged with its time, in the format of the expected logs. A message type's `toString()` prints it in that format (`Green(A)`), and an actor logs an action (`Out`) before sending it. The event log is the project's, built on the runtime's observer (`SPEC.md` section 3.1, D13).
 - `scenarios/`: one Gherkin `.feature` file per scenario (the inputs) and its `*.expected.txt` (the outputs); Cucumber runs them all and calls tracecheck; do not reimplement the comparison, nor check order or times in Gherkin steps.
 - Three kinds of tests only: unit, system and architecture (`TEST.md`, section 3.1).
 
@@ -38,5 +38,5 @@ An actor model, hand-built on the JDK, inside a hexagonal boundary: the actors r
 - any library beyond the standard one and JUnit, without approval (pending: ArchUnit, AGENT_LOG.md entry 3; Cucumber and the JaCoCo plugin, entry 4; the Spotless, Checkstyle, PMD and SpotBugs plugins, entry 5)
 - thread pools, executors, virtual threads or async tasks (one platform thread per actor)
 - a `default` branch on a sealed message type
-- catching `Exception` or `Throwable`, or catching any exception and ignoring it (`InterruptedException` only while shutting down, restoring the interrupt flag)
+- catching `Exception` or `Throwable`, or catching any exception and ignoring it (`InterruptedException` only to end a wait, restoring the interrupt flag)
 - locks or `synchronized` outside `application.actor`
