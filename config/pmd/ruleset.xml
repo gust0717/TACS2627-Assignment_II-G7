@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  The project's PMD rules (TEST.md 3.1): the standard categories, with a rule turned off only where
+  it contradicts SPEC.md or AGENTS.md. Overlap with Checkstyle, SpotBugs and ArchUnit is accepted.
+-->
+<ruleset name="tunnel"
+    xmlns="http://pmd.sourceforge.net/ruleset/2.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 https://pmd.sourceforge.io/ruleset_2_0_0.xsd">
+  <description>The project's PMD rules.</description>
+
+  <rule ref="category/java/bestpractices.xml">
+    <!-- AGENTS.md Forbidden: a default branch on a sealed message type; the compiler checks that
+         such a switch is exhaustive. -->
+    <exclude name="NonExhaustiveSwitch"/>
+  </rule>
+
+  <rule ref="category/java/errorprone.xml">
+    <!-- ArchUnit test classes hold their tests as @ArchTest fields, which this rule does not see;
+         it is turned off only for classes annotated with @AnalyzeClasses (below). -->
+    <exclude name="TestClassWithoutTestCases"/>
+  </rule>
+
+  <rule ref="category/java/errorprone.xml/TestClassWithoutTestCases">
+    <properties>
+      <property name="violationSuppressXPath"
+          value="//ClassDeclaration[pmd-java:hasAnnotation('com.tngtech.archunit.junit.AnalyzeClasses')]"/>
+    </properties>
+  </rule>
+
+  <rule ref="category/java/design.xml">
+    <!-- SPEC.md D2: components talk through ports and messages; this rule flags every call on a
+         value returned by another call (records, fluent APIs). -->
+    <exclude name="LawOfDemeter"/>
+    <!-- Needs the allowed packages listed again; SPEC.md Table 5 is the one list (ArchUnit). -->
+    <exclude name="LoosePackageCoupling"/>
+  </rule>
+
+  <rule ref="category/java/multithreading.xml">
+    <!-- SPEC.md D3: application.actor starts one platform thread per actor and uses
+         synchronized; elsewhere ArchUnit and Checkstyle forbid them. -->
+    <exclude name="DoNotUseThreads"/>
+    <exclude name="AvoidSynchronizedStatement"/>
+    <exclude name="AvoidSynchronizedAtMethodLevel"/>
+  </rule>
+</ruleset>
