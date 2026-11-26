@@ -16,7 +16,7 @@ An embedded controller built from behavioural models (state machines, sequence d
 | [AGENTS.md](AGENTS.md) | Rules and context for AI agents |
 | [AGENT_LOG.md](AGENT_LOG.md) | What each agent did, what was accepted or rejected |
 | [RETROSPECTIVE.md](RETROSPECTIVE.md) | Final reflection |
-| `scenarios/` | Scenario files and expected logs |
+| `scenarios/` | Feature files (Gherkin) and expected logs |
 | [tracecheck/](tracecheck/README.md) | Log comparison tool (from the airlock example) |
 | `.github/skills/` | Agent skills |
 | `src/` (TODO) | Controller code and tests, per the chosen language |
