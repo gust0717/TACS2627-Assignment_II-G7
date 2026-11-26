@@ -23,7 +23,7 @@ The tests are adequate when:
 
 ### 3.1 Test architecture
 
-Three kinds of tests. One command, `./mvnw verify`, runs them, the static checks and the coverage gate. No mocks, mutation or performance tests.
+Three kinds of tests. One command, `./mvnw verify`, runs them, the static checks and the coverage gate. CI runs the same gate on every pull request ready for review and on `main` (see README). No mocks, mutation or performance tests.
 
 | Kind | Target | What it verifies | Tool | Serves |
 |---|---|---|---|---|
