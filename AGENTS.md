@@ -6,12 +6,12 @@ This is the controller of a single-lane tunnel with traffic lights at both ends 
 
 ## Architecture
 
-An actor model, hand-built on the JDK, inside a hexagonal boundary: the actors reach the world only through messages. The fake hardware is an adapter started with the system; the test driver plays the users from outside. Packages and their dependencies: `SPEC.md`, section 3.4.
+An actor model, hand-built on the JDK, inside a hexagonal boundary: the actors reach the world only through messages. The devices are adapters, simulated here, started with the system; the test driver plays the users from outside. Packages and their dependencies: `SPEC.md`, section 3.4.
 
 - One component per active object: own thread, single bounded blocking inbox; the shared resource is owned by one coordinator component.
-- The inbox, the thread loop, the timers and the run context are written once, in a small kernel that knows nothing of tunnels.
+- The inbox, the thread loop, the timers and the run context are written once, in the actor runtime (`application.actor`), which knows nothing of tunnels.
 - Each component has a decision function that only decides (no I/O, threads or clock); its thread does what was decided.
-- One function starts the system (queues, threads, times, fake hardware settings); components get their queues there.
+- `launcher` starts the system (queues, threads, times, device settings); components get their queues there.
 - The controller uses only the real clock; the test driver gives shorter times to run faster.
 - Every message is logged with its time, in the format of the expected logs.
 - `scenarios/`: scenario files and `*.expected.txt`; one test runs them all and calls tracecheck; do not reimplement the comparison.
@@ -32,8 +32,8 @@ An actor model, hand-built on the JDK, inside a hexagonal boundary: the actors r
 - shared state between components other than the clock, the log and the stop flag
 - unbounded queues
 - sleeping or reading the clock in a decision function
-- any library beyond the standard one and the test framework, without approval
+- any library beyond the standard one and JUnit, without approval (ArchUnit is pending: AGENT_LOG.md, entry 3)
 - thread pools, executors, virtual threads or async tasks (one platform thread per actor)
 - a `default` branch on a sealed message type
 - catching `Exception` or `Throwable`, or catching any exception and ignoring it (`InterruptedException` only while shutting down, restoring the interrupt flag)
-- locks or `synchronized` outside the kernel
+- locks or `synchronized` outside `application.actor`
